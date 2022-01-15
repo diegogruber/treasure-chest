@@ -24,11 +24,21 @@ class FacebookPost:
         author = self.config.author
         default_text = 'Facebook status update'
         if self.title:
-            title = self.title
-            text = self.data
+            split_title = self.title.split()
+            if len(split_title) > 10:
+                title = ' '.join(split_title[:10]) + "..."
+                text = self.title + "\n\n" + self.data.replace(self.title, "")
+            else:
+                title = self.title
+                text = self.data
         elif self.data:
-            title = self.data
-            text = default_text
+            split_data = self.data.split()
+            if len(split_data) > 10:
+                title = ' '.join(split_data[:10]) + "..."
+                text = self.data
+            else:
+                title = self.data
+                text = default_text
         else:
             title = default_text
             text = ''
@@ -75,15 +85,23 @@ class FacebookPost:
             self.tags = tag_data
 
     def get_attachment(self, post: dict):
+        if 'data' in post:
+            self.get_data(post)
+            self.title = self.data
+            self.data = ''
         attachments = post['attachments']
         for attachment in attachments:
             data = attachment['data'][0]
-            if 'external_context' not in data:
+            if 'external_context' in data:
+                external = data['external_context']
+                if 'url' in external:
+                    self.data += '\n' + external['url']
+                if 'name' in external:
+                    self.data += '\n' + external['name']
+            if self.data and not self.title:
+                self.title = 'External content posted'
                 timestamp = post['timestamp']
                 self.date = get_date_from_timestamp(timestamp)
-                self.get_title(post)
-                if 'data' in post:
-                    self.get_data(post)
             if 'media' in data:
                 self.uri = data['media']['uri']
             if 'place' in data:
@@ -125,8 +143,15 @@ class InstagramPost:
         author = self.config.author
         if self.title == '':
             title = 'Posted to Instagram'
+            content = []
         else:
-            title = self.title
+            split_title = self.title.split()
+            if len(split_title) > 10:
+                title = ' '.join(split_title[:10]) + "..."
+                content = [self.title]
+            else:
+                title = self.title
+                content = []
         title = re.sub(':', '...', title)  # colon in title causes yaml trouble
         title = re.sub('^[\'\"]', '', title)  # apostrophe at beginning of title causes yaml trouble
 
@@ -141,7 +166,6 @@ class InstagramPost:
         elif '\"' not in title:
             title = f'"{title}"'
 
-        content = []
         for m in self.media:
             media_uri = m['uri']
             media_title = ftfy.fix_text(m['title'])
