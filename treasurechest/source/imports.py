@@ -5,7 +5,7 @@ import shutil
 import ftfy
 
 from box import Box
-from treasurechest.utils import get_date_from_timestamp, mkdir_from_date, make_file_name, make_header
+from treasurechest.utils.helpers import get_date_from_timestamp, mkdir_from_date, make_file_name, make_header
 
 
 class FacebookPost:
