@@ -31,13 +31,10 @@ class Engine:
             for p in posts_dict:
                 self.log.info(f"Importing post {n} of {total_posts}...")
                 obj = FacebookPost(cfg)
-                if 'attachments' in p and len(p['attachments']) > 0:
-                    obj.get_attachment(p)
-                elif 'data' in p:
-                    obj.get_data(p)
+                obj.get_post(p)
                 obj.get_tags(p)
                 if obj.date:
-                    obj.update_blog(n)
+                    obj.update_site(n)
                 else:
                     self.log.info("Skipped (no data)")
                     skipped += 1
@@ -61,9 +58,9 @@ class Engine:
                     album_dict = json.load(f)
                     self.log.info(f"Importing album {n} of {total_albums}...")
                     obj = FacebookAlbum(cfg)
-                    obj.get_album(album_dict)
+                    obj.get_post(album_dict)
                     if len(obj.media) > 0:
-                        obj.update_blog(n)
+                        obj.update_site(n)
                     else:
                         self.log.info("No media found for this album")
                     n += 1
@@ -81,5 +78,5 @@ class Engine:
                 self.log.info(f"Importing post {n} of {total_posts}...")
                 obj = InstagramPost(cfg)
                 obj.get_post(p)
-                obj.update_blog(n)
+                obj.update_site(n)
                 n += 1
