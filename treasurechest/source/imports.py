@@ -5,7 +5,7 @@ import shutil
 import ftfy
 
 from box import Box
-from treasurechest.utils import get_date_from_timestamp, mkdir_from_date
+from treasurechest.utils import get_date_from_timestamp, mkdir_from_date, make_file_name, make_header
 
 
 class FacebookPost:
@@ -49,28 +49,25 @@ class FacebookPost:
             dst = os.path.join(self.config.blog_dir, "static", self.uri)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copyfile(src, dst)
-            text += f"\n![img](/{self.uri})"
+            text += f"\n![img](/facebook/{self.uri})"
         if self.tags:
             tags = self.tags.replace(' ', '\n- ')
         else:
             tags = ''
         file_dir = mkdir_from_date(self)
-        file_name = f"fb-{post_number}-{'-'.join(title.lower().split()[:5])}"
-        file_name = re.sub('[^a-z0-9\\-]+', '', file_name) + ".md"
+        file_name = make_file_name("fb", post_number, title)
         if '\'' not in title:
             title = f"'{title}'"
         elif '\"' not in title:
             title = f'"{title}"'
-        header = '\n'.join([
-            "---",
-            f"title: {title}",
-            f"date: {self.date}",
-            f"author: {author}",
-            f"featured_image: {self.uri}",
-            "categories: Facebook",
-            f"tags: {tags}",
-            "---",
-        ])
+        header = make_header(
+            title=title,
+            date=self.date,
+            author=author,
+            categories="Facebook post",
+            featured_image="/facebook/{self.uri}",
+            tags=tags
+        )
         self.log.info(header)
         with open(os.path.join(file_dir, file_name), 'w') as post:
             post.write(header)
@@ -130,6 +127,56 @@ class FacebookPost:
                 self.data = ftfy.fix_text(d['post'])
 
 
+class FacebookAlbum:
+
+    def __init__(self, config: Box):
+        self.config = config
+        self.log = logging.getLogger(__name__)
+        self.title = ""
+        self.date = ""
+        self.media = []
+
+    def update_blog(self, album_number: int):
+        tags = '\n- album'
+        timestamp = 0
+        content = []
+        for f in self.media:
+            media_uri = f['uri']
+            if 'description' in f:
+                media_title = ftfy.fix_text(f['description']) + ' '
+            else:
+                media_title = ''
+            media_timestamp = f['creation_timestamp']
+            if media_timestamp > timestamp:
+                timestamp = media_timestamp
+            media_date = get_date_from_timestamp(timestamp)
+            src = os.path.join(self.config.facebook_export_dir, media_uri)
+            dst = os.path.join(self.config.blog_dir, "static", "facebook", media_uri)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copyfile(src, dst)
+            content.append(f"{media_title}{media_date}\n![img](/facebook/{media_uri})")
+        self.date = get_date_from_timestamp(timestamp)
+        header = make_header(
+            title=f"Album - {self.title}",
+            date=self.date,
+            author=self.config.author,
+            categories="Facebook album",
+            featured_image=f"/facebook/{self.media[0]['uri']}",
+            tags=tags
+        )
+        self.log.info(header)
+        content = '\n'+'\n\n'.join(content)
+        file_dir = mkdir_from_date(self)
+        file_name = make_file_name("fb-album", album_number, self.title)
+        with open(os.path.join(file_dir, file_name), 'w') as post:
+            post.write(header)
+            post.write(content)
+
+    def get_album(self, album: dict):
+        self.title = ftfy.fix_text(album['name'])
+        self.media = album['photos']
+
+
 class InstagramPost:
 
     def __init__(self, config: Box):
@@ -156,8 +203,7 @@ class InstagramPost:
         title = re.sub('^[\'\"]', '', title)  # apostrophe at beginning of title causes yaml trouble
 
         file_dir = mkdir_from_date(self)
-        file_name = f"insta-{post_number}-{'-'.join(title.lower().split()[:5])}"
-        file_name = re.sub('[^a-z0-9\\-]+', '', file_name) + ".md"
+        file_name = make_file_name("insta", post_number, title)
 
         tags = [x for x in title.split() if x.strip()[0] in ['@', '#']]
 
@@ -182,25 +228,23 @@ class InstagramPost:
                 tags += [x for x in media_title.split() if (x.strip()[0] in ['@', '#'] and x not in tags)]
 
         content = '\n'.join(content)
+
         tags = list(dict.fromkeys(tags))  # remove duplicate tags
         tags = [t.replace('@', '').replace('#', '') for t in tags]
         if tags:
             tags = '\n- ' + '\n- '.join(tags)
         else:
             tags = ''
-
-        header = '\n'.join([
-            "---",
-            f"title: {title}",
-            f"date: {self.date}",
-            f"author: {author}",
-            f"featured_image: /instagram/{self.media[0]['uri']}",
-            "categories: Instagram",
-            f"tags: {tags}",
-            "---",
-        ])
-
+        header = make_header(
+            title=title,
+            date=self.date,
+            author=author,
+            categories="Instagram post",
+            featured_image=f"/instagram/{self.media[0]['uri']}",
+            tags=tags
+        )
         self.log.info(header)
+
         with open(os.path.join(file_dir, file_name), 'w') as post:
             post.write(header)
             post.write(content)
