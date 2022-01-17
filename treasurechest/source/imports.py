@@ -30,7 +30,7 @@ class Post(ABC):
         """
         year = self.date[0:4]
         month = self.date[5:7]
-        file_dir = os.path.join(self.config.blog_dir, f"content/posts/{year}/{month}/")
+        file_dir = os.path.join(self.config.site_dir, f"content/posts/{year}/{month}/")
         os.makedirs(file_dir, exist_ok=True)
         return file_dir
 
@@ -61,6 +61,10 @@ class Post(ABC):
             tags = '\n- ' + '\n- '.join(tags)
         else:
             tags = ''
+        if self.categories:
+            categories = f"{self.author}'s {self.categories}"
+        else:
+            categories = ''
         # Generate header
         header = '\n'.join([
             "---",
@@ -68,7 +72,7 @@ class Post(ABC):
             f"date: {self.date}",
             f"author: {self.author}",
             f"featured_image: '{self.featured_image}'",
-            f"categories: {self.categories}",
+            f"categories: {categories}",
             f"tags: {tags}",
             "---",
         ])
@@ -120,7 +124,7 @@ class FacebookPost(Post):
             text = ''
         if self.uri:
             src = os.path.join(self.config.facebook_export_dir, self.uri)
-            dst = os.path.join(self.config.blog_dir, "static", "facebook", self.uri)
+            dst = os.path.join(self.config.site_dir, "static", "facebook", self.uri)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copyfile(src, dst)
             text += f"\n![img](/facebook/{self.uri})"
@@ -213,7 +217,7 @@ class FacebookAlbum(Post):
                 timestamp = media_timestamp
             media_date = get_date_from_timestamp(timestamp)
             src = os.path.join(self.config.facebook_export_dir, media_uri)
-            dst = os.path.join(self.config.blog_dir, "static", "facebook", media_uri)
+            dst = os.path.join(self.config.site_dir, "static", "facebook", media_uri)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copyfile(src, dst)
             content.append(f"{media_title}{media_date}\n![img](/facebook/{media_uri})")
@@ -260,7 +264,7 @@ class InstagramPost(Post):
             media_title = ftfy.fix_text(m['title'])
             if 'http' not in media_uri:
                 src = os.path.join(self.config.instagram_export_dir, media_uri)
-                dst = os.path.join(self.config.blog_dir, "static", "instagram", media_uri)
+                dst = os.path.join(self.config.site_dir, "static", "instagram", media_uri)
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copyfile(src, dst)
                 content.append(f"\n![img](/instagram/{media_uri})")

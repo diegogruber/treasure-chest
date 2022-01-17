@@ -21,7 +21,7 @@ class Engine:
     @timing
     def import_facebook_posts(self):
         cfg = self.config
-        self.log.info(f"Starting import of Facebook data to blog in {self.config.blog_dir}")
+        self.log.info(f"Starting import of Facebook data to site in {self.config.site_dir}")
         with open(os.path.join(cfg.facebook_export_dir, 'posts/your_posts_1.json')) as f:
             posts_dict = json.load(f)
             total_posts = len(posts_dict)
@@ -47,7 +47,7 @@ class Engine:
         album_dir = os.path.join(cfg.facebook_export_dir, 'posts/album')
         albums_exist = os.path.isdir(album_dir)
         if albums_exist:
-            self.log.info(f"Starting import of Facebook albums to blog in {cfg.blog_dir}")
+            self.log.info(f"Starting import of Facebook albums to site in {cfg.site_dir}")
             album_pattern = re.compile("[0-9]+.json")
             albums = [x for x in os.listdir(album_dir) if album_pattern.match(x)]
             total_albums = len(albums)
@@ -68,7 +68,7 @@ class Engine:
     @timing
     def import_instagram_posts(self):
         cfg = self.config
-        self.log.info(f"Starting import of Instagram data to blog in {self.config.blog_dir}")
+        self.log.info(f"Starting import of Instagram data to site in {self.config.site_dir}")
         with open(os.path.join(cfg.instagram_export_dir, 'content/posts_1.json')) as f:
             posts_dict = json.load(f)
             total_posts = len(posts_dict)
