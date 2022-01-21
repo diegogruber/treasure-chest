@@ -1,100 +1,93 @@
-*Copyright © 2022 by Diego Gruber. All rights reserved*
 # TreasureChest
 
-## Setup
+Treasure Chest is about regaining control of your treasured memories stored in social media sites such as Facebook and Instagram by importing them into a static site powered by [Hugo](https://gohugo.io), an open-source, fast, and modern static site generator.  
 
-### Requirements
+## Preparation
 
-* Python (>=3.6)
-* Sphinx
+1. To use Treasure Chest you must first request a copy of your data from Facebook and/or Instagram in JSON format. You find guides for how to do these here:
 
-### Development environment
+    - [Requesting a copy of your data from Facebook](https://www.facebook.com/help/212802592074644) (You only need to select to download your publications, as this is the only type of data currently supported) 
+    - [Requesting a copy of your data from Instagram](https://help.instagram.com/contact/505535973176353)
+    
+2. Set up your site with Hugo. You find a quick guide [here](https://gohugo.io/getting-started/quick-start/). I recommend using the [Diary](https://github.com/AmazingRise/hugo-theme-diary) theme instead, which allows to preview a featured image of each post. See an example [here](https://risehere.net).
 
-Create a virtual environment by running:
+3. Clone the Treasure Chest repository to your machine.
+
+4. From the terminal, `cd` into your Treasure Chest directory and create a virtual environment with the required Python packages (requires Python >=3.6):
+
+    ```shell
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt 
+    ```
+    
+You're ready to go...
+
+## Importing posts and albums to your site
+
+Modify the configuration file `config/main.yaml` in your copy of the repo such that
+
+- `name` contains the title of your site
+- `author` has the name of the author of the posts
+- `site_dir` contains the path of your Hugo site
+- `facebook_export_dir` contains the path to your Facebook data
+- `instagram_export_dir` contains the path to your Instagram data
+
+`cd` into your Treasure Chest directory in the terminal. The virtual environment should be activated every time you start a new shell session before running subsequent commands:
 
 ```shell
-python -m venv .venv
+source .venv/bin/activate
 ```
 
-The virtual environment should be activated every time you start a new shell session before running subsequent commands:
+Use the following command to import your Facebook data:
 
-> On Linux/MacOS:
-> ```shell
-> source .venv/bin/activate
-> ```
-
-> On Windows:
-> ```shell
-> .venv\Scripts\activate.bat
-> ```
-
-**The above steps can also be done with some of the IDEs. eg. PyCharm <https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html>**
-
-run:
-
-You need few dependencies and we are using pre-commit tool to install few Git
-hooks to apply basic quality check during commit/push usage.
-
+```shell
+python -m treasurechest import-from-facebook
 ```
-pip install -r requirements.txt 
-pip install pre-commit
-pre-commit install
+
+By default `treasurechest` will import both posts and albums. You can also add the flag `--imports` with the option `posts` or `albums` to import only one type of data. 
+
+Similarly, to import your Instagram posts:
+
+```shell
+python -m treasurechest import-from-instagram
 ```
- 
-### Installation
 
-## Usage
-
-### in command line or in your IDE (recommanded)
+This command does not support any options. To get additional help:
 
 ```
 python -m treasurechest --help
 ```
 
-### in Jupyter for exploration phase
+If the import procedures run without error you may now deactivate the virtual environment:
 
 ```
-jupyter notebook
+deactivate
 ```
 
-## Configuration
+You are ready to take a look at your site! `cd` into your site's directory and run
 
-All the configuration can be found in config.yml and loaded into the programm
-using util/config.py
+```hugo server```
 
-you can override per user the configuration values by adding a new file
-config.$USER.yml, by default this file will not be versionned with Git.
+You should be able to open your site by pointing your browser to `http://localhost:1313`.
 
-## Test
 
-### Unit tests
 
-We are using [pytest](https://docs.pytest.org/en/latest/) to run
-the tests
+### File structure
+
+Hugo posts use markdown syntax and are saved under the `content/` directory. `treasurechest` will save posts in the following directory structure:
 
 ```
-pytest
+author
+└── year
+    └── month
+        └── prefix-postnumber-title.md
 ```
 
+Facebook posts file names are prefixed with `fb` and `fb-album`, while Instagram posts are prefixed with `insta`. Post numbers are assigned in order in which they are imported. 
 
-## Documentation
+`treasurechest` will try to guess sensible values for the title, date, featured image, and tags of each post. These values are included in the header of each post. Two additional fields are also included in the header:
+- `author` is obtained from the configuration file
+- `categories` are created based on the type of import. Facebook posts and albums will be saved under the category *[Author]'s Facebook posts* and *[Author]'s Facebook album*, respectively. Instagram posts will be saved under the category *[Author]'s Instagram posts*.
 
-### Generation
-
-To generate the doc, you need to have sphinx installed then:
-
-```
-cd docs/
-make html
-```
-
-### Consultation
-
-To visualize the documentation:
-
-```
-cd /docs/build/html/
-python -m http.server
-```
-
-then open your browser to <http://0.0.0.0:8000>
+You may remove any files corresponding to posts that you feel are irrelevant. You can also update them and modify them in any way you want. *The treasure is in your hands now!*
