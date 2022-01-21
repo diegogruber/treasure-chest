@@ -30,7 +30,8 @@ class Post(ABC):
         """
         year = self.date[0:4]
         month = self.date[5:7]
-        file_dir = os.path.join(self.config.site_dir, f"content/posts/{year}/{month}/")
+        author = self.author.lower().replace(' ', '')
+        file_dir = os.path.join(self.config.site_dir, f"content/posts/{author}/{year}/{month}/")
         os.makedirs(file_dir, exist_ok=True)
         return file_dir
 

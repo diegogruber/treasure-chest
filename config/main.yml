@@ -1,9 +1,7 @@
-name: "default"
+name: My Site
 logging: !include logging.yml
 server: !include server.yml
-author: Inma
-site_dir: /Users/gruberdiego/Documents/socialmedia/
-#facebook_export_dir: /Users/gruberdiego/Downloads/facebook-iihle/
-author: Diego
-facebook_export_dir: /Users/gruberdiego/Downloads/fb_export/
-instagram_export_dir: /Users/gruberdiego/Downloads/diegogruber_20220111/
+author: Jane Doe
+site_dir: ~/Documents/MySite/
+facebook_export_dir:
+instagram_export_dir:
