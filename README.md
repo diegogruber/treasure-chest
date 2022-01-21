@@ -1,10 +1,10 @@
 # TreasureChest
 
-Treasure Chest is about regaining control of your treasured memories stored in social media sites such as Facebook and Instagram by importing them into a static site powered by [Hugo](https://gohugo.io), an open-source, fast, and modern static site generator.  
+`treasurechest` is a Python package to help you regain control of your treasured memories stored in social media sites such as Facebook and Instagram by importing them into a static site powered by [Hugo](https://gohugo.io), an open-source, fast, and modern static site generator.  
 
 ## Preparation
 
-1. To use Treasure Chest you must first request a copy of your data from Facebook and/or Instagram in JSON format. You find guides for how to do these here:
+1. To use Treasure Chest you must first request a copy of your data from Facebook and/or Instagram in JSON format. You find guides for how to do this here:
 
     - [Requesting a copy of your data from Facebook](https://www.facebook.com/help/212802592074644) (You only need to select to download your publications, as this is the only type of data currently supported) 
     - [Requesting a copy of your data from Instagram](https://help.instagram.com/contact/505535973176353)
@@ -84,10 +84,10 @@ author
         └── prefix-postnumber-title.md
 ```
 
-Facebook posts file names are prefixed with `fb` and `fb-album`, while Instagram posts are prefixed with `insta`. Post numbers are assigned in order in which they are imported. 
+File names for Facebook posts are prefixed with `fb` and `fb-album`, while Instagram posts are prefixed with `insta`. Post numbers are assigned in order in which they are imported. 
 
 `treasurechest` will try to guess sensible values for the title, date, featured image, and tags of each post. These values are included in the header of each post. Two additional fields are also included in the header:
 - `author` is obtained from the configuration file
-- `categories` are created based on the type of import. Facebook posts and albums will be saved under the category *[Author]'s Facebook posts* and *[Author]'s Facebook album*, respectively. Instagram posts will be saved under the category *[Author]'s Instagram posts*.
+- `categories` are created based on the type of import. Facebook posts and albums will be saved under the category *[Author]'s Facebook post* and *[Author]'s Facebook album*, respectively. Instagram posts will be saved under the category *[Author]'s Instagram post*.
 
-You may remove any files corresponding to posts that you feel are irrelevant. You can also update them and modify them in any way you want. *The treasure is in your hands now!*
+You may remove any files corresponding to posts that you feel are irrelevant. You can also update and modify them in any way you want. You even create new posts in your blog using the same file structure. If your server is running, you can observe the changes in real time on your browser. *The treasure is in your hands now!*
