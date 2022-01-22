@@ -1,14 +1,14 @@
 # TreasureChest
 
-`treasurechest` is a Python package to help you regain control of your treasured memories stored in social media sites such as Facebook and Instagram by importing them into a static site powered by [Hugo](https://gohugo.io), an open-source, fast, and modern static site generator.  
+`treasurechest` is a Python package to help you regain control of your treasured memories stored in social media sites such as Facebook and Instagram by importing them into a static site powered by [Hugo](https://gohugo.io), an open-source, fast, and modern static site generator.
 
 ## Preparation
 
 1. To use Treasure Chest you must first request a copy of your data from Facebook and/or Instagram in JSON format. You find guides for how to do this here:
 
-    - [Requesting a copy of your data from Facebook](https://www.facebook.com/help/212802592074644) (You only need to select to download your publications, as this is the only type of data currently supported) 
+    - [Requesting a copy of your data from Facebook](https://www.facebook.com/help/212802592074644) (You only need to select to download your publications, as this is the only type of data currently supported)
     - [Requesting a copy of your data from Instagram](https://help.instagram.com/contact/505535973176353)
-    
+
 2. Set up your site with Hugo. You find a quick guide [here](https://gohugo.io/getting-started/quick-start/). I recommend using the [Diary](https://github.com/AmazingRise/hugo-theme-diary) theme instead, which allows to preview a featured image of each post. See an example [here](https://risehere.net).
 
 3. Clone the Treasure Chest repository to your machine.
@@ -18,9 +18,9 @@
     ```shell
     python -m venv .venv
     source .venv/bin/activate
-    pip install -r requirements.txt 
+    pip install -r requirements.txt
     ```
-    
+
 You're ready to go...
 
 ## Importing posts and albums to your site
@@ -45,7 +45,7 @@ Use the following command to import your Facebook data:
 python -m treasurechest import-from-facebook
 ```
 
-By default `treasurechest` will import both posts and albums. You can also add the flag `--imports` with the option `posts` or `albums` to import only one type of data. 
+By default `treasurechest` will import both posts and albums. You can also add the flag `--imports` with the option `posts` or `albums` to import only one type of data.
 
 Similarly, to import your Instagram posts:
 
@@ -84,7 +84,7 @@ author
         └── prefix-postnumber-title.md
 ```
 
-File names for Facebook posts are prefixed with `fb` and `fb-album`, while Instagram posts are prefixed with `insta`. Post numbers are assigned in order in which they are imported. 
+File names for Facebook posts are prefixed with `fb` and `fb-album`, while Instagram posts are prefixed with `insta`. Post numbers are assigned in order in which they are imported.
 
 `treasurechest` will try to guess sensible values for the title, date, featured image, and tags of each post. These values are included in the header of each post. Two additional fields are also included in the header:
 - `author` is obtained from the configuration file

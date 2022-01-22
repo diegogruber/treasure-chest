@@ -12,8 +12,8 @@ def main():
 
 
 @main.command()
-@click.option('--imports', default="posts albums")
-@click.option('--config', default="config/main.yml")
+@click.option("--imports", default="posts albums")
+@click.option("--config", default="config/main.yml")
 def import_from_facebook(config: str, imports: str):
     """Some help text for full pipeline run goes here"""
     # init the config from config/
@@ -22,14 +22,14 @@ def import_from_facebook(config: str, imports: str):
     # init logging package
     dictConfig(config.logging)
     engine = Engine(config)
-    if 'posts' in imports:
+    if "posts" in imports:
         engine.import_facebook_posts()
-    if 'albums' in imports:
+    if "albums" in imports:
         engine.import_facebook_albums()
 
 
 @main.command()
-@click.option('--config', default="config/main.yml")
+@click.option("--config", default="config/main.yml")
 def import_from_instagram(config: str):
     """Some help text for side analysis goes here"""
     # init the config from config/

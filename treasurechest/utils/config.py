@@ -92,7 +92,9 @@ class Config:
         """Reads main config file"""
         if os.path.isfile(self._config_path) and os.access(self._config_path, os.R_OK):
             config = _read(filename=self._config_path, loader=CustomYamlLoader)
-            config = _overwrite_with_user_specific_file(config, filename=self._config_path)
+            config = _overwrite_with_user_specific_file(
+                config, filename=self._config_path
+            )
             return config
         else:
             raise FileNotFoundError(self._config_path)

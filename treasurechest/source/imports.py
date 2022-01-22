@@ -30,8 +30,10 @@ class Post(ABC):
         """
         year = self.date[0:4]
         month = self.date[5:7]
-        author = self.author.lower().replace(' ', '')
-        file_dir = os.path.join(self.config.site_dir, f"content/posts/{author}/{year}/{month}/")
+        author = self.author.lower().replace(" ", "")
+        file_dir = os.path.join(
+            self.config.site_dir, f"content/posts/{author}/{year}/{month}/"
+        )
         os.makedirs(file_dir, exist_ok=True)
         return file_dir
 
@@ -40,7 +42,7 @@ class Post(ABC):
         Method to create the post file name based on its title
         """
         file_name = f"{prefix}-{number}-{'-'.join(self.title.lower().split()[:5])}"
-        file_name = re.sub('[^a-z0-9\\-]+', '', file_name) + ".md"
+        file_name = re.sub("[^a-z0-9\\-]+", "", file_name) + ".md"
         return file_name
 
     def make_header(self) -> str:
@@ -49,34 +51,38 @@ class Post(ABC):
         """
         # Prepare title
         title = self.title
-        title = re.sub(':', '...', title)  # colon in title causes yaml trouble
+        title = re.sub(":", "...", title)  # colon in title causes yaml trouble
         # title = re.sub('^[\'\"]', '', title)  # apostrophe at beginning of title causes yaml trouble
-        if '\'' not in title:
+        if "'" not in title:
             title = f"'{title}'"
-        elif '\"' not in title:
+        elif '"' not in title:
             title = f'"{title}"'
         # Prepare tags
         if self.tags:
             tags = list(dict.fromkeys(self.tags))  # remove duplicate tags
-            tags = [ftfy.fix_text(t).lower().replace('@', '').replace('#', '') for t in tags]
-            tags = '\n- ' + '\n- '.join(tags)
+            tags = [
+                ftfy.fix_text(t).lower().replace("@", "").replace("#", "") for t in tags
+            ]
+            tags = "\n- " + "\n- ".join(tags)
         else:
-            tags = ''
+            tags = ""
         if self.categories:
             categories = f"{self.author}'s {self.categories}"
         else:
-            categories = ''
+            categories = ""
         # Generate header
-        header = '\n'.join([
-            "---",
-            f"title: {title}",
-            f"date: {self.date}",
-            f"author: {self.author}",
-            f"featured_image: '{self.featured_image}'",
-            f"categories: {categories}",
-            f"tags: {tags}",
-            "---",
-        ])
+        header = "\n".join(
+            [
+                "---",
+                f"title: {title}",
+                f"date: {self.date}",
+                f"author: {self.author}",
+                f"featured_image: '{self.featured_image}'",
+                f"categories: {categories}",
+                f"tags: {tags}",
+                "---",
+            ]
+        )
         return header
 
     @abstractmethod
@@ -95,7 +101,6 @@ class Post(ABC):
 
 
 class FacebookPost(Post):
-
     def __init__(self, config: Box):
         super().__init__(config)
         self.categories = "Facebook Post"
@@ -104,25 +109,25 @@ class FacebookPost(Post):
         self.loc = ""
 
     def update_site(self, post_number: int):
-        default_text = 'Facebook status update'
+        default_text = "Facebook status update"
         if self.title:
             split_title = self.title.split()
             if len(split_title) > 10:
                 text = self.title + "\n\n" + self.data.replace(self.title, "")
-                self.title = ' '.join(split_title[:10]) + "..."
+                self.title = " ".join(split_title[:10]) + "..."
             else:
                 text = self.data
         elif self.data:
             split_data = self.data.split()
             if len(split_data) > 10:
-                self.title = ' '.join(split_data[:10]) + "..."
+                self.title = " ".join(split_data[:10]) + "..."
                 text = self.data
             else:
                 self.title = self.data
                 text = default_text
         else:
             self.title = default_text
-            text = ''
+            text = ""
         if self.uri:
             src = os.path.join(self.config.facebook_export_dir, self.uri)
             dst = os.path.join(self.config.site_dir, "static", "facebook", self.uri)
@@ -134,51 +139,51 @@ class FacebookPost(Post):
         file_name = self.make_file_name("fb", post_number)
         header = self.make_header()
         self.log.info(header)
-        with open(os.path.join(file_dir, file_name), 'w') as post:
+        with open(os.path.join(file_dir, file_name), "w") as post:
             post.write(header)
             post.write("\n" + text)
 
     def get_post(self, post):
-        if 'attachments' in post and len(post['attachments']) > 0:
+        if "attachments" in post and len(post["attachments"]) > 0:
             self.get_attachment(post)
-        elif 'data' in post:
+        elif "data" in post:
             self.get_data(post)
 
     def get_tags(self, post: dict):
-        if 'tags' in post:
-            self.tags = [t['name'] for t in post['tags']]
+        if "tags" in post:
+            self.tags = [t["name"] for t in post["tags"]]
 
     def get_attachment(self, post: dict):
-        if 'data' in post:
+        if "data" in post:
             self.get_data(post)
             self.title = self.data
-            self.data = ''
-        attachments = post['attachments']
+            self.data = ""
+        attachments = post["attachments"]
         for attachment in attachments:
-            data = attachment['data'][0]
-            if 'external_context' in data:
-                external = data['external_context']
-                if 'url' in external:
-                    self.data += '\n' + external['url']
-                if 'name' in external:
-                    self.data += '\n' + external['name']
+            data = attachment["data"][0]
+            if "external_context" in data:
+                external = data["external_context"]
+                if "url" in external:
+                    self.data += "\n" + external["url"]
+                if "name" in external:
+                    self.data += "\n" + external["name"]
             if self.data and not self.title:
-                self.title = 'External content posted'
-                timestamp = post['timestamp']
+                self.title = "External content posted"
+                timestamp = post["timestamp"]
                 self.date = get_date_from_timestamp(timestamp)
-            if 'media' in data:
-                self.uri = data['media']['uri']
-            if 'place' in data:
+            if "media" in data:
+                self.uri = data["media"]["uri"]
+            if "place" in data:
                 self.get_location(data)
 
     def get_title(self, post: dict):
-        if 'title' in post:
-            self.title = ftfy.fix_text(post['title'])
+        if "title" in post:
+            self.title = ftfy.fix_text(post["title"])
 
     def get_location(self, data: dict):
-        place = data['place']
-        if 'coordinate' in place:
-            loc = place['coordinate']
+        place = data["place"]
+        if "coordinate" in place:
+            loc = place["coordinate"]
             loc_data = []
             for val in loc.values():
                 r_val = round(val, 3)
@@ -186,34 +191,33 @@ class FacebookPost(Post):
             self.loc = loc_data[0] + " " + loc_data[1]
 
     def get_data(self, post: dict):
-        data = post['data']
-        timestamp = post['timestamp']
+        data = post["data"]
+        timestamp = post["timestamp"]
         for d in data:
-            if 'post' in d:
+            if "post" in d:
                 self.date = get_date_from_timestamp(timestamp)
-                self.data = ftfy.fix_text(d['post'])
+                self.data = ftfy.fix_text(d["post"])
 
 
 class FacebookAlbum(Post):
-
     def __init__(self, config: Box):
         super().__init__(config)
         self.categories = "Facebook Album"
         self.media = []
-        self.tags = ['album']
+        self.tags = ["album"]
 
     def update_site(self, album_number: int):
         timestamp = 0
         content = []
         for f in self.media:
-            media_uri = f['uri']
+            media_uri = f["uri"]
             if not self.featured_image:
                 self.featured_image = f"/facebook/{media_uri}"
-            if 'description' in f:
-                media_title = ftfy.fix_text(f['description']) + ' '
+            if "description" in f:
+                media_title = ftfy.fix_text(f["description"]) + " "
             else:
-                media_title = ''
-            media_timestamp = f['creation_timestamp']
+                media_title = ""
+            media_timestamp = f["creation_timestamp"]
             if media_timestamp > timestamp:
                 timestamp = media_timestamp
             media_date = get_date_from_timestamp(timestamp)
@@ -225,35 +229,34 @@ class FacebookAlbum(Post):
         self.date = get_date_from_timestamp(timestamp)
         header = self.make_header()
         self.log.info(header)
-        content = '\n'+'\n\n'.join(content)
+        content = "\n" + "\n\n".join(content)
         file_dir = self.mkdir_from_date()
         file_name = self.make_file_name("fb-album", album_number)
-        with open(os.path.join(file_dir, file_name), 'w') as post:
+        with open(os.path.join(file_dir, file_name), "w") as post:
             post.write(header)
             post.write(content)
 
     def get_post(self, album: dict):
-        self.title = ftfy.fix_text(album['name'])
-        self.media = album['photos']
+        self.title = ftfy.fix_text(album["name"])
+        self.media = album["photos"]
 
 
 class InstagramPost(Post):
-
     def __init__(self, config: Box):
         super().__init__(config)
         self.categories = "Instagram post"
         self.media = []
 
     def update_site(self, post_number: int):
-        if self.title == '':
-            self.title = 'Posted to Instagram'
+        if self.title == "":
+            self.title = "Posted to Instagram"
             content = []
         else:
             split_title = self.title.split()
-            self.tags = [x for x in split_title if x.strip()[0] in ['@', '#']]
+            self.tags = [x for x in split_title if x.strip()[0] in ["@", "#"]]
             if len(split_title) > 10:
                 content = [self.title]
-                self.title = ' '.join(split_title[:10]) + "..."
+                self.title = " ".join(split_title[:10]) + "..."
             else:
                 content = []
 
@@ -261,11 +264,13 @@ class InstagramPost(Post):
         file_name = self.make_file_name("insta", post_number)
 
         for m in self.media:
-            media_uri = m['uri']
-            media_title = ftfy.fix_text(m['title'])
-            if 'http' not in media_uri:
+            media_uri = m["uri"]
+            media_title = ftfy.fix_text(m["title"])
+            if "http" not in media_uri:
                 src = os.path.join(self.config.instagram_export_dir, media_uri)
-                dst = os.path.join(self.config.site_dir, "static", "instagram", media_uri)
+                dst = os.path.join(
+                    self.config.site_dir, "static", "instagram", media_uri
+                )
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copyfile(src, dst)
                 content.append(f"\n![img](/instagram/{media_uri})")
@@ -275,22 +280,24 @@ class InstagramPost(Post):
                 content.append(f"\n![img]({media_uri})")
             if media_title != self.title:
                 content.append(f"{media_title}")
-                self.tags += [x for x in media_title.split() if x.strip()[0] in ['@', '#']]
+                self.tags += [
+                    x for x in media_title.split() if x.strip()[0] in ["@", "#"]
+                ]
 
         header = self.make_header()
-        content = '\n'.join(content)
+        content = "\n".join(content)
         self.log.info(header)
 
-        with open(os.path.join(file_dir, file_name), 'w') as post:
+        with open(os.path.join(file_dir, file_name), "w") as post:
             post.write(header)
             post.write(content)
 
     def get_post(self, post: dict):
-        self.media = post['media']
-        if 'creation_timestamp' in post:
-            timestamp = post['creation_timestamp']
-            self.title = ftfy.fix_text(post['title'])
+        self.media = post["media"]
+        if "creation_timestamp" in post:
+            timestamp = post["creation_timestamp"]
+            self.title = ftfy.fix_text(post["title"])
         else:
-            timestamp = self.media[0]['creation_timestamp']
-            self.title = ftfy.fix_text(self.media[0]['title'])
+            timestamp = self.media[0]["creation_timestamp"]
+            self.title = ftfy.fix_text(self.media[0]["title"])
         self.date = get_date_from_timestamp(timestamp)
