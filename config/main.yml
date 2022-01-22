@@ -2,6 +2,6 @@ name: My Site
 logging: !include logging.yml
 server: !include server.yml
 author: Jane Doe
-site_dir: ~/Documents/MySite/
-facebook_export_dir:
-instagram_export_dir:
+site_dir: /Users/doejane/Documents/MySite/
+facebook_export_dir: /Users/doejane/Downloads/fb_data/
+instagram_export_dir: /Users/doejane/Downloads/instagram_data/
