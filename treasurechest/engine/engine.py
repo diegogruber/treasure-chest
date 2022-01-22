@@ -4,6 +4,7 @@ import json
 import os
 import re
 
+import tqdm
 from box import Box
 from treasurechest.utils.timing import timing
 from treasurechest.source.imports import FacebookPost, FacebookAlbum, InstagramPost
@@ -30,19 +31,17 @@ class Engine:
             posts_dict = json.load(f)
             total_posts = len(posts_dict)
             self.log.info(
-                f"Importing {total_posts} from Instagram file located in {self.config.instagram_export_dir}"
+                f"Importing {total_posts} posts from Facebook file located in {self.config.facebook_export_dir}"
             )
             n = 1
             skipped = 0
-            for p in posts_dict:
-                self.log.info(f"Importing post {n} of {total_posts}...")
+            for p in tqdm.tqdm(posts_dict):
                 obj = FacebookPost(cfg)
                 obj.get_post(p)
                 obj.get_tags(p)
                 if obj.date:
                     obj.update_site(n)
                 else:
-                    self.log.info("Skipped (no data)")
                     skipped += 1
                 n += 1
             self.log.info(f"Total skipped: {skipped}")
@@ -63,16 +62,13 @@ class Engine:
                 f"Importing {total_albums} albums from Facebook file located in {album_dir}"
             )
             n = 1
-            for a in albums:
+            for a in tqdm.tqdm(albums):
                 with open(os.path.join(album_dir, a)) as f:
                     album_dict = json.load(f)
-                    self.log.info(f"Importing album {n} of {total_albums}...")
                     obj = FacebookAlbum(cfg)
                     obj.get_post(album_dict)
                     if len(obj.media) > 0:
                         obj.update_site(n)
-                    else:
-                        self.log.info("No media found for this album")
                     n += 1
 
     @timing
@@ -85,11 +81,10 @@ class Engine:
             posts_dict = json.load(f)
             total_posts = len(posts_dict)
             self.log.info(
-                f"Importing {total_posts} from Instagram file located in {self.config.instagram_export_dir}"
+                f"Importing {total_posts} posts from Instagram file located in {self.config.instagram_export_dir}"
             )
             n = 1
-            for p in posts_dict:
-                self.log.info(f"Importing post {n} of {total_posts}...")
+            for p in tqdm.tqdm(posts_dict):
                 obj = InstagramPost(cfg)
                 obj.get_post(p)
                 obj.update_site(n)

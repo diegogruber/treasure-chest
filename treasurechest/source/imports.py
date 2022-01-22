@@ -99,6 +99,25 @@ class Post(ABC):
         """
         raise NotImplementedError("Child class must implement this method.")
 
+    def create_file(
+        self,
+        header: str,
+        content: str,
+        file_dir: str,
+        file_name: str,
+        verbose: bool = False,
+    ):
+        """
+        Method for creating a Hugo post file out from a header and content
+        """
+        dst = os.path.join(file_dir, file_name)
+        if verbose:
+            self.log.info(f"Creating file {dst}")
+            self.log.info(header)
+        with open(dst, "w") as post:
+            post.write(header)
+            post.write("\n" + content)
+
 
 class FacebookPost(Post):
     def __init__(self, config: Box):
@@ -113,35 +132,35 @@ class FacebookPost(Post):
         if self.title:
             split_title = self.title.split()
             if len(split_title) > 10:
-                text = self.title + "\n\n" + self.data.replace(self.title, "")
+                content = self.title + "\n\n" + self.data.replace(self.title, "")
                 self.title = " ".join(split_title[:10]) + "..."
             else:
-                text = self.data
+                content = self.data
         elif self.data:
             split_data = self.data.split()
             if len(split_data) > 10:
                 self.title = " ".join(split_data[:10]) + "..."
-                text = self.data
+                content = self.data
             else:
                 self.title = self.data
-                text = default_text
+                content = default_text
         else:
             self.title = default_text
-            text = ""
+            content = ""
         if self.uri:
+            author = self.author.lower().replace(" ", "")
             src = os.path.join(self.config.facebook_export_dir, self.uri)
-            dst = os.path.join(self.config.site_dir, "static", "facebook", self.uri)
+            dst = os.path.join(
+                self.config.site_dir, "static", author, "facebook", self.uri
+            )
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copyfile(src, dst)
-            text += f"\n![img](/facebook/{self.uri})"
-            self.featured_image = f"/facebook/{self.uri}"
+            content += f"\n![img](/{author}/facebook/{self.uri})"
+            self.featured_image = f"/{author}/facebook/{self.uri}"
         file_dir = self.mkdir_from_date()
         file_name = self.make_file_name("fb", post_number)
         header = self.make_header()
-        self.log.info(header)
-        with open(os.path.join(file_dir, file_name), "w") as post:
-            post.write(header)
-            post.write("\n" + text)
+        self.create_file(header, content, file_dir, file_name)
 
     def get_post(self, post):
         if "attachments" in post and len(post["attachments"]) > 0:
@@ -209,10 +228,11 @@ class FacebookAlbum(Post):
     def update_site(self, album_number: int):
         timestamp = 0
         content = []
+        author = self.author.lower().replace(" ", "")
         for f in self.media:
             media_uri = f["uri"]
             if not self.featured_image:
-                self.featured_image = f"/facebook/{media_uri}"
+                self.featured_image = f"/{author}/facebook/{media_uri}"
             if "description" in f:
                 media_title = ftfy.fix_text(f["description"]) + " "
             else:
@@ -222,19 +242,20 @@ class FacebookAlbum(Post):
                 timestamp = media_timestamp
             media_date = get_date_from_timestamp(timestamp)
             src = os.path.join(self.config.facebook_export_dir, media_uri)
-            dst = os.path.join(self.config.site_dir, "static", "facebook", media_uri)
+            dst = os.path.join(
+                self.config.site_dir, "static", author, "facebook", media_uri
+            )
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copyfile(src, dst)
-            content.append(f"{media_title}{media_date}\n![img](/facebook/{media_uri})")
+            content.append(
+                f"{media_title}{media_date}\n![img](/{author}/facebook/{media_uri})"
+            )
         self.date = get_date_from_timestamp(timestamp)
         header = self.make_header()
-        self.log.info(header)
-        content = "\n" + "\n\n".join(content)
+        content = "\n\n".join(content)
         file_dir = self.mkdir_from_date()
         file_name = self.make_file_name("fb-album", album_number)
-        with open(os.path.join(file_dir, file_name), "w") as post:
-            post.write(header)
-            post.write(content)
+        self.create_file(header, content, file_dir, file_name)
 
     def get_post(self, album: dict):
         self.title = ftfy.fix_text(album["name"])
@@ -262,20 +283,20 @@ class InstagramPost(Post):
 
         file_dir = self.mkdir_from_date()
         file_name = self.make_file_name("insta", post_number)
-
+        author = self.author.lower().replace(" ", "")
         for m in self.media:
             media_uri = m["uri"]
             media_title = ftfy.fix_text(m["title"])
             if "http" not in media_uri:
                 src = os.path.join(self.config.instagram_export_dir, media_uri)
                 dst = os.path.join(
-                    self.config.site_dir, "static", "instagram", media_uri
+                    self.config.site_dir, "static", author, "instagram", media_uri
                 )
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copyfile(src, dst)
-                content.append(f"\n![img](/instagram/{media_uri})")
+                content.append(f"\n![img](/{author}/instagram/{media_uri})")
                 if not self.featured_image:
-                    self.featured_image = f"/instagram/{media_uri}"
+                    self.featured_image = f"/{author}/instagram/{media_uri}"
             else:
                 content.append(f"\n![img]({media_uri})")
             if media_title != self.title:
@@ -286,11 +307,7 @@ class InstagramPost(Post):
 
         header = self.make_header()
         content = "\n".join(content)
-        self.log.info(header)
-
-        with open(os.path.join(file_dir, file_name), "w") as post:
-            post.write(header)
-            post.write(content)
+        self.create_file(header, content, file_dir, file_name)
 
     def get_post(self, post: dict):
         self.media = post["media"]
