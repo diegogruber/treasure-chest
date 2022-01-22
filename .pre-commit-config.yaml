@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks    # This is usually the git repo host of the tool but can be a local reference
-    rev: v2.3.0
+    rev: v4.1.0
     hooks:                                                  # Each tool has one or more specific hooks, these are individual code checks
     -   id: check-yaml                                      # Basic tools rule! Check format of yaml, end of line and trailing whitespace ftw
         args: ['--unsafe']
@@ -10,6 +10,6 @@ repos:
     -   id: trailing-whitespace
     -   id: check-added-large-files
 -   repo: https://github.com/psf/black                      # Black code formatting
-    rev: 19.3b0
+    rev: 21.12b0
     hooks:
     -   id: black

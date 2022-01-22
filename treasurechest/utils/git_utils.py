@@ -3,7 +3,7 @@ from typing import Tuple, Optional
 
 
 def git_info(project_home: str = None) -> Tuple[Optional[str], Optional[str]]:
-    """ Read the git branch and commit of the project's home folder.
+    """Read the git branch and commit of the project's home folder.
     This is useful to log your branch and commit has for referencing results
 
     Args:

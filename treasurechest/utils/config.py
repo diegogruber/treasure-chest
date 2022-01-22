@@ -12,9 +12,9 @@ from box import Box
 
 def _user_specific_file(filename: str) -> Union[None, str]:
     """Find user specific files for a filename.
-     E.g. user_specific_file(config.yml) = config.$USER.yml if the file
-     exists, else returns None
-     """
+    E.g. user_specific_file(config.yml) = config.$USER.yml if the file
+    exists, else returns None
+    """
     username = getpass.getuser().lower().replace(" ", "_")
     filepath, file_extension = os.path.splitext(filename)
     user_filename = filepath + "." + username + file_extension
@@ -40,7 +40,7 @@ def _read(filename: str, loader) -> Box:
 
 
 def _overwrite_with_user_specific_file(config: Box, filename: str) -> Box:
-    """Overwrite the config files with user specific files """
+    """Overwrite the config files with user specific files"""
     user_filename = _user_specific_file(filename)
     if user_filename:
         print(f"{filename} overwritten by {user_filename}")
