@@ -1,4 +1,4 @@
-# TreasureChest
+# Treasure Chest
 
 `treasurechest` is a Python package to help you regain control of your treasured memories stored in social media sites such as Facebook and Instagram by importing them into a static site powered by [Hugo](https://gohugo.io), an open-source, fast, and modern static site generator.
 
@@ -85,6 +85,8 @@ author
 ```
 
 File names for Facebook posts are prefixed with `fb` and `fb-album`, while Instagram posts are prefixed with `insta`. Post numbers are assigned in order in which they are imported.
+
+Media content is saved to `static/[author]/[facebook|instagram]` and then keeps the file structure from the source directory.
 
 `treasurechest` will try to guess sensible values for the title, date, featured image, and tags of each post. These values are included in the header of each post. Two additional fields are also included in the header:
 - `author` is obtained from the configuration file
